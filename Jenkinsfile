@@ -1,13 +1,23 @@
 pipeline {
     agent any
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Running build automation'
-                sh './gradlew build --no-daemon'
-                archiveArtifacts artifacts: 'dist/trainSchedule.zip'
-            }
-        }
+    tools {
+        maven 'Maven 3.3.9'
+        jdk 'jdk8'
+    } 
+    stage('Compile') {
+       steps {
+         sh 'mvn compile' //only compilation of the code
+       }
+    }
+    stage('Test') {
+      steps {
+        sh '''
+        mvn clean install
+        ls
+        pwd
+        ''' 
+        //if the code is compiled, we test and package it in its distributable format; run IT and store in local repository
+      }
         stage('Build Docker Image') {
             when {
                 branch 'master'
